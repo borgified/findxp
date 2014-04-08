@@ -5,9 +5,9 @@ use Net::LDAP::Control::Paged;
 use Net::LDAP::Constant qw( LDAP_CONTROL_PAGED );
 use POSIX qw(strftime);
 
-#my %config = do '/secret/ingres.config';
+my %config = do '/secret/ingres.config';
 #my %config = do '/secret/actian.config';
-my %config = do '/secret/versant.config';
+#my %config = do '/secret/versant.config';
 #my %config = do '/secret/pervasive.config';
 
 
@@ -47,7 +47,7 @@ sub convert {
 		#http://www.perlmonks.org/?node_id=600396
 		#using 11676009600 instead of 11644473600
 		#http://meinit.nl/convert-active-directory-lastlogon-time-to-unix-readable-time
-		$output = POSIX::strftime( "%Y-%m-%d", localtime(($time/10000000)-11676009600) );
+		$output = POSIX::strftime( "%Y-%m-%d", localtime(($time/10000000)-11644473600) );
 	}
 
 	return $output;
@@ -70,14 +70,16 @@ while (1) {
 
 		#we use lastlogontimestamp instead of lastlogon because
 		#http://kpytko.pl/2012/07/30/lastlogon-vs-lastlogontimestamp/
+		my $lastlogon = $_->get_value('lastLogon');
 		my $lastlogonts=$_->get_value('lastLogonTimestamp');
 		my $distinguishedName=$_->get_value('distinguishedName');
 		my $dnshostname =$_->get_value('dNSHostName');
 		#my $name = $_->get_value('name');
 
 		my $human_readable_ts=&convert($lastlogonts);
+		my $a = &convert($lastlogon);
 
-		print "'$os','$human_readable_ts','$dnshostname','$distinguishedName'\n";
+		print "\"$os\",\"$human_readable_ts\",\"$a\",\"$dnshostname\",\"$distinguishedName\"\n";
 		#enable next line for debugging (limits to 40 loops)
 #		exit if $count > 39;
 		$count++
